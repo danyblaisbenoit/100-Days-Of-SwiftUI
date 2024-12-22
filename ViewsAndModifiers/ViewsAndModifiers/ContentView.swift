@@ -35,9 +35,21 @@ struct Title: ViewModifier {
     }
 }
 
+struct ChallengeStyle: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .font(.largeTitle)
+            .foregroundStyle(.blue)
+    }
+}
+
 extension View {
     func titleStyle() -> some View {
         modifier(Title())
+    }
+    
+    func challengeStyle() -> some View {
+        modifier(ChallengeStyle())
     }
 }
 
@@ -65,13 +77,17 @@ extension View {
 
 struct ContentView: View {
     var body: some View {
-        ZStack {
-            Color.blue
-                .frame(width: 300, height: 200)
-                .watermark("Hacking with Swift")
-            GridStack(rows: 4, columns: 4) { row, col in
-                Image(systemName: "\(row * 4 + col).circle")
-                Text("R\(row) C\(col)")
+        VStack {
+            Text("Challenge Style")
+                .challengeStyle()
+            ZStack {
+                Color.blue
+                    .frame(width: 300, height: 200)
+                    .watermark("Hacking with Swift")
+                GridStack(rows: 4, columns: 4) { row, col in
+                    Image(systemName: "\(row * 4 + col).circle")
+                    Text("R\(row) C\(col)")
+                }
             }
         }
     }
