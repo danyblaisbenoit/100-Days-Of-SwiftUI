@@ -16,28 +16,39 @@ struct ContentView: View {
     @State private var errorMessage = ""
     @State private var showingError = false
     
+    let minLength = 3
+        
     var body: some View {
         NavigationStack {
-            List {
-                Section {
-                    TextField("Enter your word", text: $newWord)
-                        .textInputAutocapitalization(.never)
-                }
-                
-                Section {
-                    ForEach(usedWords, id: \.self) { word in
-                        HStack {
-                            Image(systemName: "\(word.count).circle")
-                            Text(word)
+            VStack {
+                List {
+                    Section {
+                        TextField("Enter your word", text: $newWord)
+                            .textInputAutocapitalization(.never)
+                    }
+                    
+                    Section {
+                        ForEach(usedWords, id: \.self) { word in
+                            HStack {
+                                Image(systemName: "\(word.count).circle")
+                                Text(word)
+                            }
                         }
                     }
                 }
-            }
-            .navigationTitle(rootWord)
-            .onSubmit(addNewWord)
-            .onAppear(perform: startGame)
-            .alert(errorTitle, isPresented: $showingError) { } message: {
-                Text(errorMessage)
+                .navigationTitle(rootWord)
+                .onSubmit(addNewWord)
+                .onAppear(perform: startGame)
+                .toolbar {
+                    Button("Reset") {
+                        startGame()
+                    }
+                }
+                .alert(errorTitle, isPresented: $showingError) { } message: {
+                    Text(errorMessage)
+                }
+                
+                Text("You're score is: \(calculateScore())")
             }
         }
     }
@@ -62,6 +73,16 @@ struct ContentView: View {
             return
         }
         
+        guard isDifferent(word: answer) else {
+            wordError(title: "Word is identical", message: "Word provided must be a subset of \(rootWord).")
+            return
+        }
+        
+        guard isLong(word: answer) else {
+            wordError(title: "Word is too short", message: "Word provided must have atleast \(minLength) characters")
+            return
+        }
+        
         withAnimation{
             usedWords.insert(answer, at: 0)
         }
@@ -74,6 +95,7 @@ struct ContentView: View {
             if let startWords = try? String(contentsOf: startWordsURL, encoding: .utf8) {
                 let allWords = startWords.components(separatedBy: "\n")
                 rootWord = allWords.randomElement() ?? "silkworm"
+                usedWords = []
                 return
             }
         }
@@ -106,10 +128,26 @@ struct ContentView: View {
         return mispelledRange.location == NSNotFound
     }
     
+    func isDifferent(word: String) -> Bool {
+        return word != rootWord
+    }
+    
+    func isLong(word: String) -> Bool {
+        return word.count >= minLength
+    }
+    
     func wordError(title: String, message: String) {
         errorTitle = title
         errorMessage = message
         showingError = true
+    }
+    
+    func calculateScore() -> Int {
+        var score = 0
+        for word in usedWords {
+            score += word.count
+        }
+        return score
     }
 }
 
