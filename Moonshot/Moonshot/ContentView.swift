@@ -17,7 +17,32 @@ struct ContentView: View {
     
     var body: some View {
         NavigationStack {
-            Text(String(astronauts.count))
+            ScrollView {
+                LazyVGrid(columns: columns) {
+                    ForEach(missions) { mission in
+                        NavigationLink {
+                            Text("Detail View")
+                        } label: {
+                            VStack {
+                                Image(mission.image)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 100, height: 100)
+                                
+                                VStack {
+                                    Text(mission.displayName)
+                                        .font(.headline)
+                                    
+                                    Text(mission.launchDate ?? "N/A")
+                                        .font(.caption)
+                                }
+                                .frame(maxWidth: .infinity)
+                            }
+                        }
+                    }
+                }
+            }
+            .navigationTitle("Moonshot")
         }
     }
 }
