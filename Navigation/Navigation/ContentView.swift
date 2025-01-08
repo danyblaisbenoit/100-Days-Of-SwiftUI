@@ -7,24 +7,63 @@
 
 import SwiftUI
 
-struct Student: Hashable {
-    let id = UUID()
-    let name: String
-    let age: Int
+@Observable class PathStore {
+    var path: NavigationPath {
+        didSet {
+            save()
+        }
+    }
+    
+    private let savePath = URL.documentsDirectory.appending(path: "SavedPath")
+    
+    init() {
+        if let data = try? Data(contentsOf: savePath) {
+            if let decoded = try? JSONDecoder().decode(NavigationPath.CodableRepresentation.self, from: data) {
+                path = NavigationPath(decoded)
+                return
+            }
+        }
+        
+        path = NavigationPath()
+    }
+    
+    func save() {
+        guard let representation = path.codable else { return }
+        
+        do {
+            let data = try JSONEncoder().encode(representation)
+            try data.write(to: savePath)
+        } catch {
+            print("Failed to save Navigation data")
+        }
+    }
+}
+
+struct DetailView: View {
+    let number: Int
+    
+    @Binding var path: NavigationPath
+    
+    var body: some View {
+        NavigationLink("Go to Random Number", value: Int.random(in: 1...1000))
+            .navigationTitle("Number: \(number)")
+            .toolbar {
+                Button("Home") {
+                    path = NavigationPath()
+                }
+            }
+    }
 }
 
 struct ContentView: View {
+    @State private var pathStore = PathStore()
+    
     var body: some View {
-        NavigationStack {
-            List(0..<100) { i in
-                NavigationLink("Select \(i)", value: i)
-            }
-            .navigationDestination(for: Int.self) { selection in
-                Text("You selected \(selection)")
-            }
-            .navigationDestination(for: Student.self) { student in
-                Text("You selected \(student.name)")
-            }
+        NavigationStack(path: $pathStore.path) {
+            DetailView(number: 0, path: $pathStore.path)
+                .navigationDestination(for: Int.self) { i in
+                    DetailView(number: i, path: $pathStore.path)
+                }
         }
     }
 }
