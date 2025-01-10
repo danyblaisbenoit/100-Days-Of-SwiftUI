@@ -67,8 +67,6 @@ struct TableView: View {
 
 struct ContentView: View {
     @State private var expenses = Expenses()
-    
-    @State private var showingAddExpanse = false
         
     var body: some View {
         NavigationStack {
@@ -92,12 +90,9 @@ struct ContentView: View {
             }
             .navigationTitle("iExpense")
             .toolbar {
-                Button("Add expense", systemImage: "plus") {
-                    showingAddExpanse = true
+                NavigationLink(destination: AddView(expenses: expenses)) {
+                    Image(systemName: "plus")
                 }
-            }
-            .sheet(isPresented: $showingAddExpanse) {
-                AddView(expenses: expenses)
             }
         }
     }
