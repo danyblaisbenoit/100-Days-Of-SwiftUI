@@ -39,7 +39,7 @@ struct CheckoutView: View {
         .navigationTitle("Check out")
         .navigationBarTitleDisplayMode(.inline)
         .scrollBounceBehavior(.basedOnSize)
-        .alert("Thank you!", isPresented: $showingConfirmation) {
+        .alert("", isPresented: $showingConfirmation) {
             Button("OK") {}
         } message: {
             Text(confirmationMessage)
@@ -65,6 +65,8 @@ struct CheckoutView: View {
             showingConfirmation = true
         } catch {
             print("Check out failed: \(error.localizedDescription)")
+            confirmationMessage = "Your order for \(order.quantity)x \(Order.types[order.type].lowercased()) cupcakes could not be processed. Please try again later."
+            showingConfirmation = true
         }
     }
 }

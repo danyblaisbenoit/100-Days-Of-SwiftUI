@@ -36,13 +36,35 @@ import Foundation
     var extraFrosting = false
     var addSprinkles = false
     
-    var name = ""
-    var streetAddress = ""
-    var city = ""
-    var zip = ""
+    var name = UserDefaults.standard.string(forKey: "name") ?? "" {
+        didSet {
+            UserDefaults.standard.set(name, forKey: "name" )
+        }
+    }
+    
+    var streetAddress = UserDefaults.standard.string(forKey: "streetAddress") ?? "" {
+        didSet {
+            UserDefaults.standard.set(streetAddress, forKey: "streetAddress")
+        }
+    }
+    
+    var city = UserDefaults.standard.string(forKey: "city") ?? "" {
+        didSet {
+            UserDefaults.standard.set(city, forKey: "city")
+        }
+    }
+    
+    var zip = UserDefaults.standard.string(forKey: "zip") ?? "" {
+        didSet {
+            UserDefaults.standard.set(zip, forKey: "zip")
+        }
+    }
     
     var hasValidAddress: Bool {
-        if name.isEmpty || streetAddress.isEmpty || city.isEmpty || zip.isEmpty {
+        if name.filter({ !$0.isWhitespace }).isEmpty ||
+        streetAddress.filter({ !$0.isWhitespace }).isEmpty ||
+        city.filter({ !$0.isWhitespace }).isEmpty ||
+        zip.filter({ !$0.isWhitespace }).isEmpty {
             return false
         } else {
             return true
